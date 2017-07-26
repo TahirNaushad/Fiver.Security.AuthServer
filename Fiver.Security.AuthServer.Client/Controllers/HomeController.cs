@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Fiver.Security.AuthServer.Client.Models.Home;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -26,9 +27,9 @@ namespace Fiver.Security.AuthServer.Client.Controllers
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             var content = await client.GetStringAsync("http://localhost:5001/movies");
 
-            ViewBag.Json = JArray.Parse(content).ToString();
+            var model = JsonConvert.DeserializeObject<List<MovieViewModel>>(content);
             
-            return View();
+            return View(model);
         }
 
         public IActionResult Claims()
