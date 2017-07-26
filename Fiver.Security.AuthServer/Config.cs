@@ -53,6 +53,20 @@ namespace Fiver.Security.AuthServer
                         IdentityServerConstants.StandardScopes.Profile,
                         "fiver_auth_api"
                     },
+                },
+                // Resource Owner Password Flow
+                new Client
+                {
+                    ClientId = "fiver_auth_client_ro",
+                    ClientName = "Fiver.Security.AuthServer.Client.RO",
+                    ClientSecrets = { new Secret("secret".Sha256()) },
+
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+
+                    AllowedScopes =
+                    {
+                        "fiver_auth_api"
+                    },
                 }
             };
         }
