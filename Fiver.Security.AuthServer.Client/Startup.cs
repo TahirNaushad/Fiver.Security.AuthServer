@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Fiver.Security.AuthServer.Client
@@ -11,42 +12,37 @@ namespace Fiver.Security.AuthServer.Client
         public void ConfigureServices(
             IServiceCollection services)
         {
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddOpenIdConnect(options =>
+            {
+                options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // cookie middle setup above
+                options.Authority = "http://localhost:5000"; // Auth Server
+                options.RequireHttpsMetadata = false;
+                options.ClientId = "fiver_auth_client"; // client setup in Auth Server
+                options.ClientSecret = "secret";
+                options.ResponseType = "code id_token"; // means Hybrid flow (id + access token)
+                options.Scope.Add("fiver_auth_api");
+                options.Scope.Add("offline_access");
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.SaveTokens = true;
+            });
+
             services.AddMvc();
         }
 
         public void Configure(
             IApplicationBuilder app, 
-            IHostingEnvironment env, 
-            ILoggerFactory loggerFactory)
+            IHostingEnvironment env)
         {
             app.UseDeveloperExceptionPage();
-
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationScheme = "Cookies"
-            });
-
-            app.UseOpenIdConnectAuthentication(new OpenIdConnectOptions
-            {
-                AuthenticationScheme = "oidc",
-                SignInScheme = "Cookies", // cookie middle setup above
-
-                Authority = "http://localhost:5000", // Auth Server
-                RequireHttpsMetadata = false,
-
-                ClientId = "fiver_auth_client", // client setup in Auth Server
-                ClientSecret = "secret",
-
-                ResponseType = "code id_token", // means Hybrid flow (id + access token)
-                Scope = { "fiver_auth_api", "offline_access" },
-
-                GetClaimsFromUserInfoEndpoint = true,
-
-                SaveTokens = true,
-            });
-
+            app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
         }
     }

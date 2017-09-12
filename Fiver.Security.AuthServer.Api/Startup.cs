@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Fiver.Security.AuthServer.Api
 {
@@ -10,23 +10,23 @@ namespace Fiver.Security.AuthServer.Api
         public void ConfigureServices(
             IServiceCollection services)
         {
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.JwtAuthenticationScheme)
+                    .AddIdentityServerAuthentication(options =>
+                     {
+                         options.Authority = "http://localhost:5000"; // Auth Server
+                         options.RequireHttpsMetadata = false;
+                         options.ApiName = "fiver_auth_api"; // API Resource Id
+                     });
+
             services.AddMvc();
         }
 
         public void Configure(
             IApplicationBuilder app, 
-            IHostingEnvironment env, 
-            ILoggerFactory loggerFactory)
+            IHostingEnvironment env)
         {
             app.UseDeveloperExceptionPage();
-
-            app.UseIdentityServerAuthentication(new IdentityServerAuthenticationOptions
-            {
-                Authority = "http://localhost:5000", // Auth Server
-                RequireHttpsMetadata = false,
-                ApiName = "fiver_auth_api" // API Resource Id
-            });
-
+            app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
         }
     }

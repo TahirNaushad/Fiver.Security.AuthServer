@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace Fiver.Security.AuthServer
 {
@@ -13,16 +12,17 @@ namespace Fiver.Security.AuthServer
             services.AddMvc();
 
             services.AddIdentityServer()
-                        .AddTemporarySigningCredential()
+                        .AddDeveloperSigningCredential(filename: "tempkey.rsa")
                         .AddInMemoryApiResources(Config.GetApiResources())
                         .AddInMemoryIdentityResources(Config.GetIdentityResources())
                         .AddInMemoryClients(Config.GetClients())
                         .AddTestUsers(Config.GetUsers());
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(
+            IApplicationBuilder app, 
+            IHostingEnvironment envloggerFactory)
         {
-            loggerFactory.AddConsole(LogLevel.Debug);
             app.UseDeveloperExceptionPage();
 
             app.UseIdentityServer();
