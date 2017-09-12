@@ -24,7 +24,7 @@ namespace Fiver.Security.AuthServer.Client
             {
                 options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // cookie middle setup above
                 options.Authority = "http://localhost:5000"; // Auth Server
-                options.RequireHttpsMetadata = false;
+                options.RequireHttpsMetadata = false; // only for development 
                 options.ClientId = "fiver_auth_client"; // client setup in Auth Server
                 options.ClientSecret = "secret";
                 options.ResponseType = "code id_token"; // means Hybrid flow (id + access token)
