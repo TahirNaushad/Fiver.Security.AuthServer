@@ -10,7 +10,6 @@ namespace Fiver.Security.AuthServer
             IServiceCollection services)
         {
             services.AddMvc();
-
             services.AddIdentityServer()
                         .AddDeveloperSigningCredential(filename: "tempkey.rsa")
                         .AddInMemoryApiResources(Config.GetApiResources())
@@ -24,9 +23,7 @@ namespace Fiver.Security.AuthServer
             IHostingEnvironment envloggerFactory)
         {
             app.UseDeveloperExceptionPage();
-
             app.UseIdentityServer();
-
             app.UseStaticFiles();
             app.UseMvcWithDefaultRoute();
         }
